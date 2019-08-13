@@ -1,24 +1,31 @@
+# MSA Phase 2 Project - AI CIFAR-10 Program
+# Author: King Hang Tam
+
 import keras
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 
-from keras.models import Sequential, load_model
-from keras.layers import Input, Dense, Conv2D, LSTM, Bidirectional
-from keras.layers import BatchNormalization, Activation, Flatten, TimeDistributed, Reshape
-from keras.callbacks import ModelCheckpoint
+# from keras.models import Sequential, load_model
+# from keras.layers import Input, Dense, Conv2D, LSTM, Bidirectional
+# from keras.layers import BatchNormalization, Activation, Flatten, TimeDistributed, Reshape
+# from keras.callbacks import ModelCheckpoint
 
 import os
-# import pandas as pd
 
+# ===== Settings =====
+
+# Filepaths to the locations for input and saved data
 CIFAR_10_dir = "./cifar-10-batches-py/"
 CIFAR_10_path = CIFAR_10_dir + "data_batch_1"
 dataset_save_dir = "./cifar-10-npy/"
 dataset_save_path = dataset_save_dir + "cifar-10-batch-1.npy"
 
+# ====================
 
 def setup():
-	assert os.path.exists(CIFAR_10_dir) or os.path.exists(dataset_save_dir), "No input data files found"
+	'''Set up folder structure for the program'''
+	assert os.path.exists(CIFAR_10_dir) or os.path.exists(dataset_save_dir), "No input data folder/files found"
 	
 	# Create any missing folders for loading and saving data
 	if not os.path.exists(dataset_save_dir):
@@ -30,7 +37,8 @@ def unpickle(file):		# Function taken from: https://www.cs.toronto.edu/~kriz/cif
 		dict = pickle.load(fo, encoding='bytes')
 	return dict
 
-def load_dataset(save_path=dataset_save_path, CIFAR_10_path=CIFAR_10_path):
+def load_from_file(CIFAR_10_path=CIFAR_10_path, save_path=dataset_save_path):
+	'''Load the dataset from file'''
 	if not os.path.exists(save_path):
 		dataset_dict = unpickle(CIFAR_10_path)
 		
@@ -47,20 +55,36 @@ def load_dataset(save_path=dataset_save_path, CIFAR_10_path=CIFAR_10_path):
 		ground_truth = dataset[:,-1]
 	
 	return data, ground_truth
-	
-def main():
-	# Set up folder structure as needed
-	setup()
+
+def load_data():
+	''''Load train and test datasets'''
 	
 	# for i in range(1,6):
 	for i in range(1,2):
 		fpath = CIFAR_10_dir + "data_batch_%d"%i
 		save_path = dataset_save_dir + "cifar-10-batch-%d.npy"%i
-		x_train, y_train = load_dataset(save_path=save_path, CIFAR_10_path=fpath)
-		
-		print(type(x_train))
-		print(x_train.shape)
-		print(y_train.shape)
+		x_train, y_train = load_from_file(CIFAR_10_path=fpath, save_path=save_path)
+	
+	fpath = CIFAR_10_dir + "test_batch"
+	save_path = dataset_save_dir + "cifar-10-batch-test.npy"
+	x_test, y_test = load_from_file(CIFAR_10_path=fpath, save_path=save_path)
+	
+	label_names = unpickle(CIFAR_10_dir + "batches.meta")[b"label_names"]
+	label_names = [n.decode('utf-8') for n in label_names]
+	# print(label_names)
+	
+	return x_train, y_train, x_test, y_test, label_names
+	
+def main():
+	print("- Program running -")
+	
+	# Set up folder structure as needed
+	setup()
+	
+	# Load dataset
+	x_train, y_train, x_test, y_test, label_names = load_data()
+	
+	print("- Program ended -")
 
 
 if __name__ == '__main__':

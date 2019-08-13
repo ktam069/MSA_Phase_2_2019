@@ -1,6 +1,6 @@
 # MSA Phase 2 Project 2019 (AI Project)
 
-King Hang Tam
+By King Hang Tam
 
 ## Description
 
