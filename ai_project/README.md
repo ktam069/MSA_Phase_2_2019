@@ -18,9 +18,13 @@ tensorflow
 
 keras
 
+numpy
+
+pandas
+
 matplotlib
 
-numpy
+seaborn
 
 (To be extended)
 

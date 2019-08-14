@@ -4,12 +4,15 @@
 import keras
 import tensorflow as tf
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 # from keras.models import Sequential, load_model
 # from keras.layers import Input, Dense, Conv2D, LSTM, Bidirectional
 # from keras.layers import BatchNormalization, Activation, Flatten, TimeDistributed, Reshape
 # from keras.callbacks import ModelCheckpoint
+from sklearn.metrics import confusion_matrix
 
 import os
 
@@ -75,6 +78,82 @@ def load_data():
 	
 	return x_train, y_train, x_test, y_test, label_names
 	
+def adv_training_tut(x_train, y_train, x_test, y_test):
+
+	'''Flattened features NN version'''
+	
+	# model = keras.models.Sequential()
+	# model.add(keras.layers.Flatten(input_shape=(3072.)))
+	# model.add(keras.layers.Dense(64, activation='relu'))
+	# model.add(keras.layers.Dense(32, activation='relu'))
+	# model.add(keras.layers.Dense(10, activation='softmax'))    # 10 output classes, converts to probabilities summing to 1
+	# model.summary()
+	
+	# model.compile(optimizer='sgd', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+	
+	# training = model.fit(x_train, y_train, epochs=1, validation_split=0.33)
+	
+	# training.history.keys()
+
+	# loss = training.history['loss']
+	# val_loss = training.history['val_loss']
+	# ax = pd.DataFrame(loss).plot()
+	# ax = pd.DataFrame(val_loss).plot(ax=ax)
+	# ax.legend(['loss', 'val_loss'])
+	# plt.show()
+	
+	# plt.imshow(x_test[0], cmap='gray')
+	# plt.show()
+	
+	# pred = model.predict(x_test[0:1])
+	
+	# pred = model.predict(x_test)
+	# y_pred = np.argmax(pred, axis=1)
+	# y_pred.shape
+	
+	# confusion_matrix(y_test, y_pred)
+	# sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, ax=ax)
+	
+	
+	'''CNN version'''
+	
+	# # Add extra pixels dimension (1 in this case; 3 if rgb)
+	# x_train = x_train.reshape((-1, 3072, 1))  # Shape is inferred if set as -1 (for one dim max)
+	# x_test = x_test.reshape((-1, 3072, 1))
+	
+	# Convolution NN model
+
+	model = keras.models.Sequential()
+	model.add(keras.layers.Conv2D(16, kernel_size=(3,3), activation='relu', input_shape=(32, 32, 3)))
+	model.add(keras.layers.Conv2D(8, kernel_size=(3,3), activation='relu'))
+	model.add(keras.layers.Flatten())
+	model.add(keras.layers.Dense(10, activation='softmax'))    # 10 output classes, converts to probabilities summing to 1
+
+	model.summary()
+	
+	model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+	training = model.fit(x_train, y_train, epochs=10, validation_split=0.33)
+	training.history.keys()
+	
+	loss = training.history['loss']
+	val_loss = training.history['val_loss']
+	ax = pd.DataFrame(loss).plot()
+	ax = pd.DataFrame(val_loss).plot(ax=ax)
+	ax.legend(['loss', 'val_loss'])
+	# plt.show()
+	
+	y_pred = model.predict(x_test, verbose=1)
+	print(np.argmax(y_pred))
+	
+	print(y_pred.shape)
+	y_pred = np.argmax(y_pred, axis=1)
+	print(y_pred.shape)
+	
+	plt.clf()
+	sns.heatmap(confusion_matrix(y_test, y_pred), annot=True)
+	plt.show()
+	
+	
 def main():
 	print("- Program running -")
 	
@@ -83,6 +162,45 @@ def main():
 	
 	# Load dataset
 	x_train, y_train, x_test, y_test, label_names = load_data()
+	
+	
+	#=========================================
+	
+	'''Display Images...................'''
+	
+	# num_to_plot = 6
+	# for i in range(num_to_plot):
+		# plt.subplot(1,num_to_plot,i+1)
+		# plt.imshow(x_train[i], cmap='gray')
+	# plt.show()
+	
+	# plt.hist(x_train[0])
+	# plt.show()
+	
+	#=========================================
+	
+	
+	# Reshape the dataset into a shape that tensorflow expects: (samples, rows, cols, channels)
+	# Could also use (samples, channels, rows, cols)
+	# Note that the original data is stored as a flattened array in row-major order
+	
+	print(x_train.shape, '->')
+	x_train = x_train.reshape(-1, 3, 32, 32)
+	print(x_train.shape, '->')
+	x_train = np.moveaxis(x_train, 1, -1)
+	print(x_train.shape)
+	
+	x_test = x_test.reshape(-1, 3, 32, 32)
+	x_test = np.moveaxis(x_test, 1, -1)
+	
+	print("\n=======\nNew shape:")
+	print(x_train.shape)
+	
+	# Normalise data into the range [0,1]
+	x_train = x_train / np.max(x_train)
+	x_test = x_test / np.max(x_test)
+	
+	adv_training_tut(x_train, y_train, x_test, y_test)
 	
 	print("- Program ended -")
 
