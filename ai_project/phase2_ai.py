@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from keras.models import Sequential, load_model
+from keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization, Activation
 # from keras.layers import Input, Dense, Conv2D, LSTM, Bidirectional
 # from keras.layers import BatchNormalization, Activation, Flatten, TimeDistributed, Reshape
 # from keras.callbacks import ModelCheckpoint
@@ -21,7 +22,7 @@ from datetime import datetime
 # ===== Settings =====
 
 # Used (the latest) peviously saved model
-LOAD_MODEL = False
+USE_LOADED_MODEL = False
 
 # Filepaths to the locations for input and saved data
 CIFAR_10_dir = "./cifar-10-batches-py/"
@@ -67,14 +68,40 @@ def load_from_file(CIFAR_10_path=CIFAR_10_path, save_path=dataset_save_path):
 	
 	return data, ground_truth
 
+def load_data_batch(batch_no=1):
+	''''Load train and test datasets'''
+	
+	fpath = CIFAR_10_dir + "data_batch_%d"%batch_no
+	save_path = dataset_save_dir + "cifar-10-batch-%d.npy"%batch_no
+	x_train, y_train = load_from_file(CIFAR_10_path=fpath, save_path=save_path)
+
+	fpath = CIFAR_10_dir + "test_batch"
+	save_path = dataset_save_dir + "cifar-10-batch-test.npy"
+	x_test, y_test = load_from_file(CIFAR_10_path=fpath, save_path=save_path)
+	
+	label_names = unpickle(CIFAR_10_dir + "batches.meta")[b"label_names"]
+	label_names = [n.decode('utf-8') for n in label_names]
+	# print(label_names)
+	
+	return x_train, y_train, x_test, y_test, label_names
+
 def load_data():
 	''''Load train and test datasets'''
 	
-	# for i in range(1,6):
-	for i in range(1,2):
+	x_train = None
+	y_train = None
+	
+	for i in range(1,6):
 		fpath = CIFAR_10_dir + "data_batch_%d"%i
 		save_path = dataset_save_dir + "cifar-10-batch-%d.npy"%i
-		x_train, y_train = load_from_file(CIFAR_10_path=fpath, save_path=save_path)
+		x_data, y_data = load_from_file(CIFAR_10_path=fpath, save_path=save_path)
+		
+		if i == 1:
+			x_train = x_data
+			y_train = y_data
+		else:
+			x_train = np.append(x_train, x_data, axis=0)
+			y_train = np.append(y_train, y_data, axis=0)
 	
 	fpath = CIFAR_10_dir + "test_batch"
 	save_path = dataset_save_dir + "cifar-10-batch-test.npy"
@@ -88,13 +115,13 @@ def load_data():
 	
 def adv_training_tut(x_train, y_train, x_test, y_test):
 	
-	if LOAD_MODEL:
+	if USE_LOADED_MODEL:
 		model = load_newest_model()
 	else:
 		'''Flattened features NN version'''
 		
 		# model = keras.models.Sequential()
-		# model.add(keras.layers.Flatten(input_shape=(3072.)))
+		# model.add(keras.layers.Flatten(input_shape=(32, 32, 3)))
 		# model.add(keras.layers.Dense(64, activation='relu'))
 		# model.add(keras.layers.Dense(32, activation='relu'))
 		# model.add(keras.layers.Dense(10, activation='softmax'))    # 10 output classes, converts to probabilities summing to 1
@@ -134,17 +161,28 @@ def adv_training_tut(x_train, y_train, x_test, y_test):
 		
 		# Convolution NN model
 
-		model = keras.models.Sequential()
-		model.add(keras.layers.Conv2D(16, kernel_size=(3,3), activation='relu', input_shape=(32, 32, 3)))
-		model.add(keras.layers.Conv2D(8, kernel_size=(3,3), activation='relu'))
-		model.add(keras.layers.Flatten())
-		model.add(keras.layers.Dense(10, activation='softmax'))    # 10 output classes, converts to probabilities summing to 1
-
-		model.summary()
+		model = Sequential()
+		model.add(Conv2D(8, kernel_size=(3,3), activation='relu', input_shape=(32, 32, 3)))
+		model.add(Conv2D(16, kernel_size=(3,3), activation='relu'))
+		model.add(Conv2D(32, kernel_size=(3,3), activation='relu'))
+		# model.add(Conv2D(8, kernel_size=(9,9), activation='relu'))
+		# model.add(Conv2D(32, kernel_size=(1,1), activation='relu'))
+		model.add(Flatten())
+		# model.add(Dense(20, activation='softmax'))
+		model.add(Dense(10, activation='softmax'))
+		# model.add(Dense(10, activation='softmax'))    # 10 output classes, converts to probabilities summing to 1
 		
-		# model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+		model.summary()
+
+		# # Print the output shapes of each model layer
+		# for layer in model.layers:
+			# name = layer.get_config()["name"]
+			# if "batch_normal" in name or "activation" in name:
+				# continue
+			# print(layer.output_shape, "\t", name)
+		
 		model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-		training = model.fit(x_train, y_train, epochs=30, validation_split=0.33)
+		training = model.fit(x_train, y_train, batch_size=1000, epochs=30, validation_split=0.3)
 		print(training.history.keys())
 		
 		loss = training.history['loss']
@@ -152,7 +190,7 @@ def adv_training_tut(x_train, y_train, x_test, y_test):
 		ax = pd.DataFrame(loss).plot()
 		ax = pd.DataFrame(val_loss).plot(ax=ax)
 		ax.legend(['loss', 'val_loss'])
-		# plt.show()
+		plt.show()
 		
 		save_model(model)
 	
@@ -208,6 +246,7 @@ def main():
 	setup()
 	
 	# Load dataset
+	# x_train, y_train, x_test, y_test, label_names = load_data_batch()
 	x_train, y_train, x_test, y_test, label_names = load_data()
 	
 	
