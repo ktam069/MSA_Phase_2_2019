@@ -5,6 +5,7 @@ cifar-10-batches-py/
 cifar-10-npy/
 *.npy
 *.h5
+*.hdf5
 
 # ===================
 

@@ -8,21 +8,27 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# from keras.models import Sequential, load_model
+from keras.models import Sequential, load_model
 # from keras.layers import Input, Dense, Conv2D, LSTM, Bidirectional
 # from keras.layers import BatchNormalization, Activation, Flatten, TimeDistributed, Reshape
 # from keras.callbacks import ModelCheckpoint
 from sklearn.metrics import confusion_matrix
 
 import os
+import glob
+from datetime import datetime
 
 # ===== Settings =====
+
+# Used (the latest) peviously saved model
+LOAD_MODEL = False
 
 # Filepaths to the locations for input and saved data
 CIFAR_10_dir = "./cifar-10-batches-py/"
 CIFAR_10_path = CIFAR_10_dir + "data_batch_1"
 dataset_save_dir = "./cifar-10-npy/"
 dataset_save_path = dataset_save_dir + "cifar-10-batch-1.npy"
+model_save_dir = "./saved_models/"
 
 # ====================
 
@@ -33,6 +39,8 @@ def setup():
 	# Create any missing folders for loading and saving data
 	if not os.path.exists(dataset_save_dir):
 		os.mkdir(dataset_save_dir)
+	if not os.path.exists(model_save_dir):
+		os.mkdir(model_save_dir)
 
 def unpickle(file):		# Function taken from: https://www.cs.toronto.edu/~kriz/cifar.html
 	import pickle
@@ -79,68 +87,74 @@ def load_data():
 	return x_train, y_train, x_test, y_test, label_names
 	
 def adv_training_tut(x_train, y_train, x_test, y_test):
+	
+	if LOAD_MODEL:
+		model = load_newest_model()
+	else:
+		'''Flattened features NN version'''
+		
+		# model = keras.models.Sequential()
+		# model.add(keras.layers.Flatten(input_shape=(3072.)))
+		# model.add(keras.layers.Dense(64, activation='relu'))
+		# model.add(keras.layers.Dense(32, activation='relu'))
+		# model.add(keras.layers.Dense(10, activation='softmax'))    # 10 output classes, converts to probabilities summing to 1
+		# model.summary()
+		
+		# model.compile(optimizer='sgd', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+		
+		# training = model.fit(x_train, y_train, epochs=1, validation_split=0.33)
+		
+		# training.history.keys()
 
-	'''Flattened features NN version'''
-	
-	# model = keras.models.Sequential()
-	# model.add(keras.layers.Flatten(input_shape=(3072.)))
-	# model.add(keras.layers.Dense(64, activation='relu'))
-	# model.add(keras.layers.Dense(32, activation='relu'))
-	# model.add(keras.layers.Dense(10, activation='softmax'))    # 10 output classes, converts to probabilities summing to 1
-	# model.summary()
-	
-	# model.compile(optimizer='sgd', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-	
-	# training = model.fit(x_train, y_train, epochs=1, validation_split=0.33)
-	
-	# training.history.keys()
+		# loss = training.history['loss']
+		# val_loss = training.history['val_loss']
+		# ax = pd.DataFrame(loss).plot()
+		# ax = pd.DataFrame(val_loss).plot(ax=ax)
+		# ax.legend(['loss', 'val_loss'])
+		# plt.show()
+		
+		# plt.imshow(x_test[0], cmap='gray')
+		# plt.show()
+		
+		# pred = model.predict(x_test[0:1])
+		
+		# pred = model.predict(x_test)
+		# y_pred = np.argmax(pred, axis=1)
+		# y_pred.shape
+		
+		# confusion_matrix(y_test, y_pred)
+		# sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, ax=ax)
+		
+		
+		'''CNN version'''
+		
+		# # Add extra pixels dimension (1 in this case; 3 if rgb)
+		# x_train = x_train.reshape((-1, 3072, 1))  # Shape is inferred if set as -1 (for one dim max)
+		# x_test = x_test.reshape((-1, 3072, 1))
+		
+		# Convolution NN model
 
-	# loss = training.history['loss']
-	# val_loss = training.history['val_loss']
-	# ax = pd.DataFrame(loss).plot()
-	# ax = pd.DataFrame(val_loss).plot(ax=ax)
-	# ax.legend(['loss', 'val_loss'])
-	# plt.show()
-	
-	# plt.imshow(x_test[0], cmap='gray')
-	# plt.show()
-	
-	# pred = model.predict(x_test[0:1])
-	
-	# pred = model.predict(x_test)
-	# y_pred = np.argmax(pred, axis=1)
-	# y_pred.shape
-	
-	# confusion_matrix(y_test, y_pred)
-	# sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, ax=ax)
-	
-	
-	'''CNN version'''
-	
-	# # Add extra pixels dimension (1 in this case; 3 if rgb)
-	# x_train = x_train.reshape((-1, 3072, 1))  # Shape is inferred if set as -1 (for one dim max)
-	# x_test = x_test.reshape((-1, 3072, 1))
-	
-	# Convolution NN model
+		model = keras.models.Sequential()
+		model.add(keras.layers.Conv2D(16, kernel_size=(3,3), activation='relu', input_shape=(32, 32, 3)))
+		model.add(keras.layers.Conv2D(8, kernel_size=(3,3), activation='relu'))
+		model.add(keras.layers.Flatten())
+		model.add(keras.layers.Dense(10, activation='softmax'))    # 10 output classes, converts to probabilities summing to 1
 
-	model = keras.models.Sequential()
-	model.add(keras.layers.Conv2D(16, kernel_size=(3,3), activation='relu', input_shape=(32, 32, 3)))
-	model.add(keras.layers.Conv2D(8, kernel_size=(3,3), activation='relu'))
-	model.add(keras.layers.Flatten())
-	model.add(keras.layers.Dense(10, activation='softmax'))    # 10 output classes, converts to probabilities summing to 1
-
-	model.summary()
-	
-	model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-	training = model.fit(x_train, y_train, epochs=10, validation_split=0.33)
-	training.history.keys()
-	
-	loss = training.history['loss']
-	val_loss = training.history['val_loss']
-	ax = pd.DataFrame(loss).plot()
-	ax = pd.DataFrame(val_loss).plot(ax=ax)
-	ax.legend(['loss', 'val_loss'])
-	# plt.show()
+		model.summary()
+		
+		# model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+		model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+		training = model.fit(x_train, y_train, epochs=30, validation_split=0.33)
+		print(training.history.keys())
+		
+		loss = training.history['loss']
+		val_loss = training.history['val_loss']
+		ax = pd.DataFrame(loss).plot()
+		ax = pd.DataFrame(val_loss).plot(ax=ax)
+		ax.legend(['loss', 'val_loss'])
+		# plt.show()
+		
+		save_model(model)
 	
 	y_pred = model.predict(x_test, verbose=1)
 	print(np.argmax(y_pred))
@@ -152,6 +166,39 @@ def adv_training_tut(x_train, y_train, x_test, y_test):
 	plt.clf()
 	sns.heatmap(confusion_matrix(y_test, y_pred), annot=True)
 	plt.show()
+	
+	eval_model(model, x_test, y_test)
+	
+
+def load_newest_model():
+	'''Load latest saved model'''
+	
+	# Get the newest available model
+	all_model_paths = glob.glob(model_save_dir+'*')
+	newest_model_path = max(all_model_paths, key=os.path.getctime)
+
+	# Load the latest model
+	model = load_model(newest_model_path)
+	print("\n" + "="*60 + "\n")
+	print("Using model loaded from:", newest_model_path)
+	print("\nLoaded model summary:")
+	print(model.summary())
+	
+	return model
+
+def save_model(model):
+	'''Save an existing (trained) model'''
+	
+	t = datetime.now().strftime("%d_%m_%H%M%S")
+	model_save_path = model_save_dir + "saved_model_%s.h5"%t
+	model.save(model_save_path)
+	
+def eval_model(model, x_test, y_test):
+	print("\nEvaluating on test data...")
+		
+	loss = model.evaluate(x_test, y_test)
+	print(model.metrics_names)
+	print("eval loss:", loss)
 	
 	
 def main():
