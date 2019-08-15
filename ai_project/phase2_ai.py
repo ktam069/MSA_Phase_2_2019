@@ -120,18 +120,20 @@ def create_compiled_model():
 	model = Sequential()
 	
 	# Convolution layers with max pooling
-	model.add(Conv2D(8, kernel_size=(3,3), activation='relu', input_shape=(32, 32, 3)))
+	model.add(Conv2D(32, kernel_size=(3,3), activation='relu', input_shape=(32, 32, 3)))
 	# model.add(MaxPooling2D(pool_size=(2,2)))
-	model.add(Conv2D(16, kernel_size=(3,3), activation='relu'))
+	model.add(Conv2D(64, kernel_size=(3,3), activation='relu'))
 	# model.add(MaxPooling2D(pool_size=(2,2)))
-	model.add(Conv2D(32, kernel_size=(3,3), activation='relu'))
+	model.add(Conv2D(128, kernel_size=(3,3), activation='relu'))
 	# model.add(MaxPooling2D(pool_size=(2,2)))
+	# model.add(Dropout(0.25))
 	
 	model.add(Flatten())
 	
 	# Three fully connected layers (including the output layer)
 	# model.add(Dense(128, activation='relu'))
 	# model.add(Dense(256, activation='relu'))
+	# model.add(Dropout(0.25))
 	model.add(Dense(10, activation='softmax'))    # 10 output classes, as probabilities
 	
 	model.summary()
