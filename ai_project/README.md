@@ -76,4 +76,8 @@ This was attempted but isn't currently working. The accuracy isn't better than r
 
 ### Deployed Model:
 
+Deploying Python code to Azure Functions, as outlined in the following tutorial: https://docs.microsoft.com/en-us/azure/azure-functions/tutorial-vs-code-serverless-python
+
+Currently incomplete - code can be found in the *deployment* branch.
+
 (To be extended)
