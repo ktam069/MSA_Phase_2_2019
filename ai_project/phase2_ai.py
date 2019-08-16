@@ -233,9 +233,11 @@ def load_newest_checkpoint():
 	model.load_weights(newest_path)
 
 	print("\n" + "="*60 + "\n")
-	print("Using model loaded from:", newest_model_path)
+	print("Using model loaded from:", newest_path)
 	print("\nLoaded model summary:")
 	print(model.summary())
+	
+	save_trained_model(model)
 	
 	return model
 
