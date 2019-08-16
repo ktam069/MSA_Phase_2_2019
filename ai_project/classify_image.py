@@ -5,8 +5,11 @@ from PIL import Image
 from io import BytesIO
 import matplotlib.image as mpimg
 
-# Set image url here (for classifying)
-url = "http://www.cs.toronto.edu/~kriz/cifar-10-sample/automobile5.png"
+
+'''Set image url here (for classifying)'''
+# url = "http://www.cs.toronto.edu/~kriz/cifar-10-sample/automobile5.png"
+url = "https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
+
 
 def run_classifier(x_test, saved_model_name=None):
 	USE_LOADED_MODEL = True
@@ -53,7 +56,7 @@ def run_classifier(x_test, saved_model_name=None):
 
 response = requests.get(url)
 img = Image.open(BytesIO(response.content))
-img.thumbnail((32, 32), Image.ANTIALIAS)
+img = img.resize((32, 32), Image.ANTIALIAS)
 
 data = np.array(img)
 data = data.reshape(1, 32, 32, 3)
