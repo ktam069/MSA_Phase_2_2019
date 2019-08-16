@@ -55,8 +55,8 @@ def run_classifier(x_test, saved_model_name=None):
 
 
 response = requests.get(url)
-img = Image.open(BytesIO(response.content))
-img = img.resize((32, 32), Image.ANTIALIAS)
+img_original = Image.open(BytesIO(response.content))
+img = img_original.resize((32, 32), Image.ANTIALIAS)
 
 data = np.array(img)
 data = data.reshape(1, 32, 32, 3)
@@ -71,5 +71,6 @@ print("Prediction on image:\n\t", url, "\n")
 print("\t", label_names[output], "(class "+str(output)+")")
 print()
 
-imgplot = plt.imshow(img)
+imgplot = plt.imshow(img_original)
+plt.title("%s"%label_names[output])
 plt.show()
