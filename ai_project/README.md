@@ -14,19 +14,17 @@ Python 3
 
 ### Install the following libraries as required:
 
-tensorflow
+* tensorflow
 
-keras
+* keras
 
-numpy
+* numpy
 
-pandas
+* pandas
 
-matplotlib
+* matplotlib
 
-seaborn
-
-(To be extended)
+* seaborn
 
 ### Dataset:
 
