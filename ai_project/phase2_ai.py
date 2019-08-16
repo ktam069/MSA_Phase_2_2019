@@ -120,12 +120,12 @@ def create_compiled_model():
 	model = Sequential()
 	
 	# Convolution layers with max pooling
-	model.add(Conv2D(32, kernel_size=(3,3), activation='relu', input_shape=(32, 32, 3)))
-	# model.add(MaxPooling2D(pool_size=(2,2)))
-	model.add(Conv2D(64, kernel_size=(3,3), activation='relu'))
-	# model.add(MaxPooling2D(pool_size=(2,2)))
-	model.add(Conv2D(128, kernel_size=(3,3), activation='relu'))
-	# model.add(MaxPooling2D(pool_size=(2,2)))
+	model.add(Conv2D(32, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
+	model.add(MaxPooling2D(pool_size=(2,2), strides=2))
+	model.add(Conv2D(64, kernel_size=(3,3), activation='relu', padding='same'))
+	model.add(MaxPooling2D(pool_size=(2,2), strides=2))
+	model.add(Conv2D(128, kernel_size=(3,3), activation='relu', padding='same'))
+	model.add(MaxPooling2D(pool_size=(2,2), strides=2))
 	# model.add(Dropout(0.25))
 	
 	model.add(Flatten())
@@ -196,7 +196,7 @@ def run_CNN(x_train, y_train, x_test, y_test):
 		model = create_compiled_model()
 
 		# TODO: hyperparameter tuning (simply using the validation result currently)
-		training = model.fit(x_train, y_train, batch_size=1000, epochs=30, validation_split=0.3)
+		training = model.fit(x_train, y_train, batch_size=1000, epochs=15, validation_split=0.3)
 		
 		# Save the model so it can be loaded if desired (rather than having to re-train)
 		save_trained_model(model)
