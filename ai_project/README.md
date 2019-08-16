@@ -4,9 +4,7 @@ By King Hang Tam
 
 ## Description
 
-This is the phase 2 project for the MSA AI stream.
-
-The CNN model is trained to classify images in the CIFAR-10 dataset.
+This is the phase 2 project for the MSA AI stream. The CNN model is trained to classify 32x32 images in the CIFAR-10 dataset.
 
 ## Dependencies
 
@@ -64,7 +62,7 @@ Enabling *USE_LOADED_MODEL* will load the latest model that was saved in the *sa
 
 Enabling *USE_CHECKPOINT* will load the model with the weights from the latest checkpoint that was saved in the *saved_checkpoints* folder. (This model is from the epoch with the highest validation accuracy.)
 
-## Features and FAQ
+## Features
 
 ### Transfer Learning with ResNet50:
 

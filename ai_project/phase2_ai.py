@@ -128,28 +128,6 @@ def create_compiled_model():
 		# Convolution layers with max pooling
 		
 		model.add(Conv2D(16, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
-		model.add(MaxPooling2D(pool_size=(2,2), strides=2))
-		model.add(Conv2D(32, kernel_size=(3,3), activation='relu', padding='same'))
-		model.add(MaxPooling2D(pool_size=(2,2)))
-		model.add(Conv2D(64, kernel_size=(3,3), activation='relu', padding='same'))
-		# model.add(Conv2D(64, kernel_size=(3,3), activation='relu', padding='same'))
-		model.add(MaxPooling2D(pool_size=(2,2)))
-		model.add(Conv2D(128, kernel_size=(3,3), activation='relu', padding='same'))
-		# model.add(Conv2D(128, kernel_size=(3,3), activation='relu', padding='same'))
-		model.add(MaxPooling2D(pool_size=(2,2)))
-		# model.add(Dropout(0.25))
-		
-		model.add(Flatten())
-		
-		# Three fully connected layers (including the output layer)
-		# model.add(Dense(128, activation='relu'))
-		# model.add(Dense(256, activation='relu'))
-		# model.add(Dropout(0.25))
-		model.add(Dense(10, activation='softmax'))    # 10 output classes, as probabilities
-	elif False:
-		# Convolution layers with max pooling
-		
-		model.add(Conv2D(16, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
 		model.add(Conv2D(16, kernel_size=(3,3), activation='relu', padding='same'))
 		model.add(MaxPooling2D(pool_size=(2,2)))
 		model.add(Conv2D(32, kernel_size=(3,3), activation='relu', padding='same'))
@@ -167,8 +145,8 @@ def create_compiled_model():
 		# model.add(Dense(256, activation='relu'))
 		# model.add(Dropout(0.25))
 		model.add(Dense(10, activation='softmax'))    # 10 output classes, as probabilities
-	elif True:
-		# Model based on the paper, https://arxiv.org/pdf/1412.6806.pdf
+	else:
+		# Final model is loosely based on the paper, https://arxiv.org/pdf/1412.6806.pdf
 		
 		model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
 		model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same'))
@@ -192,25 +170,6 @@ def create_compiled_model():
 		# model.add(Dropout(0.25))
 		model.add(Dense(10, activation='softmax'))    # 10 output classes, as probabilities
 	
-	else:
-		# Convolution layers with max pooling
-		model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
-		# model.add(MaxPooling2D(pool_size=(2,2), strides=2))
-		# model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same'))
-		# model.add(MaxPooling2D(pool_size=(2,2), strides=2))
-		model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
-		# model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
-		# model.add(MaxPooling2D(pool_size=(2,2), strides=2))
-		# model.add(Dropout(0.25))
-		
-		model.add(Flatten())
-		
-		# Three fully connected layers (including the output layer)
-		# model.add(Dense(128, activation='relu'))
-		# model.add(Dense(256, activation='relu'))
-		# model.add(Dropout(0.25))
-		model.add(Dense(10, activation='softmax'))    # 10 output classes, as probabilities
-	
 	model.summary()
 	
 	# (Sparse for integer encoded y_train, as opposed to one-hot encoded.)
@@ -227,6 +186,23 @@ def plot_training_result(training):
 	ax = pd.DataFrame(val_loss).plot(ax=ax)
 	ax.legend(['loss', 'val_loss'])
 	plt.show()
+
+def load_specific_model(filename):
+	'''Load a specified saved model'''
+	
+	# Load the latest model
+	try:
+		model_path = model_save_dir+filename
+		model = load_model(model_path)
+		print("\n" + "="*60 + "\n")
+		print("Using model loaded from:", model_path)
+		print("\nLoaded model summary:")
+		print(model.summary())	
+	except:
+		print("Error while loading model - make sure", model_save_dir+filename, "exists.")
+		return None
+	
+	return model
 
 def load_newest_model():
 	'''Load latest saved model'''
@@ -285,8 +261,15 @@ def display_confusion_matrix(y_test, y_pred):
 	sns.heatmap(confusion_matrix(y_test, y_pred), annot=True)
 	plt.show()
 	
-def run_CNN(x_train, y_train, x_test, y_test):
-	if USE_LOADED_MODEL:
+def run_CNN(x_train, y_train, x_test, y_test, saved_model_name=None):
+	if saved_model_name is not None:
+		model = load_specific_model(saved_model_name)
+		
+		# Ignore invalid saved model name
+		if model is None:
+			print("Failed to load model, continuing with alternative models...\n")
+			run_CNN(x_train, y_train, x_test, y_test)
+	elif USE_LOADED_MODEL:
 		model = load_newest_model()
 	elif USE_CHECKPOINT:
 		model = load_newest_checkpoint()
@@ -310,6 +293,7 @@ def run_CNN(x_train, y_train, x_test, y_test):
 		plot_training_result(training)
 	
 	# Make predictions on test set
+	print("\nPredicting on test set...")
 	y_pred = model.predict(x_test, verbose=1)
 	
 	# Get the class (i.e. index) with the highest probability
