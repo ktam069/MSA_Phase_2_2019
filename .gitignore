@@ -2,6 +2,7 @@
 
 cifar-10-batches-py/
 cifar-10-npy/
+ai_project/results/
 *.tar*
 *.npy
 *.h5

@@ -124,7 +124,7 @@ def create_compiled_model():
 
 	model = Sequential()
 	
-	if True:
+	if False:
 		# Convolution layers with max pooling
 		
 		model.add(Conv2D(16, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
@@ -146,7 +146,7 @@ def create_compiled_model():
 		# model.add(Dense(256, activation='relu'))
 		# model.add(Dropout(0.25))
 		model.add(Dense(10, activation='softmax'))    # 10 output classes, as probabilities
-	elif True:
+	elif False:
 		# Convolution layers with max pooling
 		
 		model.add(Conv2D(16, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
@@ -171,10 +171,10 @@ def create_compiled_model():
 		# Model based on the paper, https://arxiv.org/pdf/1412.6806.pdf
 		
 		model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
-		model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same'))
+		# model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same'))
 		model.add(MaxPooling2D(pool_size=(2,2), strides=2))
 		model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
-		model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
+		# model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
 		model.add(MaxPooling2D(pool_size=(2,2), strides=2))
 		# model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
 		# model.add(Conv2D(192, kernel_size=(1,1), activation='relu', padding='same'))
@@ -186,7 +186,8 @@ def create_compiled_model():
 		# model.add(GlobalAveragePooling2D())
 		
 		# Three fully connected layers (including the output layer)
-		model.add(Dense(128, activation='relu'))
+		model.add(Dense(64, activation='relu'))
+		# model.add(Dense(128, activation='relu'))
 		# model.add(Dense(256, activation='relu'))
 		# model.add(Dropout(0.25))
 		model.add(Dense(10, activation='softmax'))    # 10 output classes, as probabilities
@@ -274,7 +275,7 @@ def eval_model(model, x_test, y_test):
 		
 	loss = model.evaluate(x_test, y_test)
 	
-	for i in len(model.metrics_names):
+	for i in range(len(model.metrics_names)):
 		print(model.metrics_names[i]+":", loss[i])
 	
 def display_confusion_matrix(y_test, y_pred):
@@ -294,7 +295,8 @@ def run_CNN(x_train, y_train, x_test, y_test):
 		model = create_compiled_model()
 		
 		# Create checkpoints whenever validation accuracy has increased
-		filepath = checkpoint_save_dir + "cnn-{epoch:02d}-{val_acc:.2f}.hdf5"
+		t = datetime.now().strftime("%d_%m_%H%M%S")
+		filepath = checkpoint_save_dir + "cnn-%s-{epoch:02d}-{val_acc:.2f}.hdf5" %t
 		checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='auto')
 		callback_list = [checkpoint]
 		
