@@ -1,11 +1,12 @@
 # Additional files to ignore
 
-*.tar*
 cifar-10-batches-py/
 cifar-10-npy/
+*.tar*
 *.npy
 *.h5
 *.hdf5
+*.pyc
 
 # ===================
 

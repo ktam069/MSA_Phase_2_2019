@@ -10,9 +10,8 @@ import seaborn as sns
 
 from keras.models import Sequential, load_model
 from keras.layers import Input, Dense, Conv2D, MaxPooling2D, Flatten, Dropout
-from keras.layers import BatchNormalization, Activation
-# from keras.layers import Input, Dense, Conv2D, LSTM, Bidirectional
-# from keras.layers import BatchNormalization, Activation, Flatten, TimeDistributed, Reshape
+from keras.layers import BatchNormalization, Activation, GlobalAveragePooling2D
+# from keras.layers import Input, BatchNormalization, Activation
 # from keras.callbacks import ModelCheckpoint
 from sklearn.metrics import confusion_matrix
 
@@ -120,11 +119,12 @@ def create_compiled_model():
 	model = Sequential()
 	
 	# Convolution layers with max pooling
-	model.add(Conv2D(32, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
+	model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
+	# model.add(MaxPooling2D(pool_size=(2,2), strides=2))
+	model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same'))
 	model.add(MaxPooling2D(pool_size=(2,2), strides=2))
-	model.add(Conv2D(64, kernel_size=(3,3), activation='relu', padding='same'))
-	model.add(MaxPooling2D(pool_size=(2,2), strides=2))
-	model.add(Conv2D(128, kernel_size=(3,3), activation='relu', padding='same'))
+	model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
+	model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
 	model.add(MaxPooling2D(pool_size=(2,2), strides=2))
 	# model.add(Dropout(0.25))
 	
@@ -169,21 +169,24 @@ def load_newest_model():
 	
 	return model
 
-def save_trained_model(model):
+def save_trained_model(model, filename="saved_model"):
 	'''Save an existing (trained) model'''
 	
 	t = datetime.now().strftime("%d_%m_%H%M%S")
-	model_save_path = model_save_dir + "saved_model_%s.h5"%t
+	model_save_path = model_save_dir + (filename + "_%s.h5"%t)
 	model.save(model_save_path)
 	
 def eval_model(model, x_test, y_test):
 	print("\nEvaluating on test data...")
 		
 	loss = model.evaluate(x_test, y_test)
-	print(model.metrics_names)
-	print("eval loss:", loss)
+	
+	for i in len(model.metrics_names):
+		print(model.metrics_names[i]+":", loss[i])
 	
 def display_confusion_matrix(y_test, y_pred):
+	print("\nEvaluating confusion matrix...")
+	
 	plt.clf()
 	sns.heatmap(confusion_matrix(y_test, y_pred), annot=True)
 	plt.show()
@@ -196,7 +199,7 @@ def run_CNN(x_train, y_train, x_test, y_test):
 		model = create_compiled_model()
 
 		# TODO: hyperparameter tuning (simply using the validation result currently)
-		training = model.fit(x_train, y_train, batch_size=1000, epochs=15, validation_split=0.3)
+		training = model.fit(x_train, y_train, batch_size=1000, epochs=15, validation_split=0.2)
 		
 		# Save the model so it can be loaded if desired (rather than having to re-train)
 		save_trained_model(model)
