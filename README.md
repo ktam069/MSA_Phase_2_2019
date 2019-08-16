@@ -4,24 +4,6 @@ By King Hang Tam
 
 ## Description
 
-This is the phase 2 project for the MSA general stream.
+This is the phase 2 project for the MSA AI stream.
 
-The website allows the user to process videos, with the main feature being the ability to filter out noise and secondary speakers.
-
-## Dependencies
-
-(None so far)
-
-## Instructions for Running
-
-This application is deployed through Microsoft Azure DevOps and can be found at: https://msa-phase2-video-processing.azurewebsites.net/
-
-If you wish to run the program locally, run the following command in the project folder:
-
-```
-npm run start
-```
-
-## Features and FAQ
-
-(To be added)
+The main code can be found in the *ai_project* sub-directory: https://github.com/ktam069/MSA_Phase_2_2019/tree/ai-project/ai_project
