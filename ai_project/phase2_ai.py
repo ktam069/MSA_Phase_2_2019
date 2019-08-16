@@ -121,15 +121,15 @@ def create_compiled_model():
 	if False:
 		# Convolution layers with max pooling
 		
-		model.add(Conv2D(32, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
-		# model.add(MaxPooling2D(pool_size=(2,2), strides=2))
+		model.add(Conv2D(16, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
+		model.add(MaxPooling2D(pool_size=(2,2), strides=2))
 		model.add(Conv2D(32, kernel_size=(3,3), activation='relu', padding='same'))
 		model.add(MaxPooling2D(pool_size=(2,2)))
 		model.add(Conv2D(64, kernel_size=(3,3), activation='relu', padding='same'))
-		model.add(Conv2D(64, kernel_size=(3,3), activation='relu', padding='same'))
+		# model.add(Conv2D(64, kernel_size=(3,3), activation='relu', padding='same'))
 		model.add(MaxPooling2D(pool_size=(2,2)))
 		model.add(Conv2D(128, kernel_size=(3,3), activation='relu', padding='same'))
-		model.add(Conv2D(128, kernel_size=(3,3), activation='relu', padding='same'))
+		# model.add(Conv2D(128, kernel_size=(3,3), activation='relu', padding='same'))
 		model.add(MaxPooling2D(pool_size=(2,2)))
 		# model.add(Dropout(0.25))
 		
@@ -141,6 +141,27 @@ def create_compiled_model():
 		# model.add(Dropout(0.25))
 		model.add(Dense(10, activation='softmax'))    # 10 output classes, as probabilities
 	elif False:
+		# Convolution layers with max pooling
+		
+		model.add(Conv2D(16, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
+		model.add(Conv2D(16, kernel_size=(3,3), activation='relu', padding='same'))
+		model.add(MaxPooling2D(pool_size=(2,2)))
+		model.add(Conv2D(32, kernel_size=(3,3), activation='relu', padding='same'))
+		model.add(Conv2D(32, kernel_size=(3,3), activation='relu', padding='same'))
+		model.add(MaxPooling2D(pool_size=(2,2)))
+		model.add(Conv2D(64, kernel_size=(3,3), activation='relu', padding='same'))
+		model.add(Conv2D(64, kernel_size=(3,3), activation='relu', padding='same'))
+		model.add(MaxPooling2D(pool_size=(2,2)))
+		# model.add(Dropout(0.25))
+		
+		model.add(Flatten())
+		
+		# Three fully connected layers (including the output layer)
+		# model.add(Dense(128, activation='relu'))
+		# model.add(Dense(256, activation='relu'))
+		# model.add(Dropout(0.25))
+		model.add(Dense(10, activation='softmax'))    # 10 output classes, as probabilities
+	elif True:
 		# Model based on the paper, https://arxiv.org/pdf/1412.6806.pdf
 		
 		model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
@@ -149,9 +170,9 @@ def create_compiled_model():
 		model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
 		model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
 		model.add(MaxPooling2D(pool_size=(2,2), strides=2))
-		model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
-		model.add(Conv2D(192, kernel_size=(1,1), activation='relu', padding='same'))
-		model.add(Conv2D(10, kernel_size=(1,1), activation='relu', padding='same'))
+		# model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
+		# model.add(Conv2D(192, kernel_size=(1,1), activation='relu', padding='same'))
+		# model.add(Conv2D(10, kernel_size=(1,1), activation='relu', padding='same'))
 		# model.add(MaxPooling2D(pool_size=(2,2), strides=2))
 		# model.add(Dropout(0.25))
 		
@@ -159,7 +180,7 @@ def create_compiled_model():
 		# model.add(GlobalAveragePooling2D())
 		
 		# Three fully connected layers (including the output layer)
-		# model.add(Dense(128, activation='relu'))
+		model.add(Dense(128, activation='relu'))
 		# model.add(Dense(256, activation='relu'))
 		# model.add(Dropout(0.25))
 		model.add(Dense(10, activation='softmax'))    # 10 output classes, as probabilities
@@ -246,7 +267,7 @@ def run_CNN(x_train, y_train, x_test, y_test):
 		model = create_compiled_model()
 
 		# TODO: hyperparameter tuning (simply using the validation result currently)
-		training = model.fit(x_train, y_train, batch_size=1000, epochs=15, validation_split=0.2)
+		training = model.fit(x_train, y_train, batch_size=1000, epochs=20, validation_split=0.2)
 		
 		# Save the model so it can be loaded if desired (rather than having to re-train)
 		save_trained_model(model)
