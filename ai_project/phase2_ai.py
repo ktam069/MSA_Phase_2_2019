@@ -118,23 +118,70 @@ def create_compiled_model():
 
 	model = Sequential()
 	
-	# Convolution layers with max pooling
-	model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
-	# model.add(MaxPooling2D(pool_size=(2,2), strides=2))
-	model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same'))
-	model.add(MaxPooling2D(pool_size=(2,2), strides=2))
-	model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
-	model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
-	model.add(MaxPooling2D(pool_size=(2,2), strides=2))
-	# model.add(Dropout(0.25))
+	if False:
+		# Convolution layers with max pooling
+		
+		model.add(Conv2D(32, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
+		# model.add(MaxPooling2D(pool_size=(2,2), strides=2))
+		model.add(Conv2D(32, kernel_size=(3,3), activation='relu', padding='same'))
+		model.add(MaxPooling2D(pool_size=(2,2)))
+		model.add(Conv2D(64, kernel_size=(3,3), activation='relu', padding='same'))
+		model.add(Conv2D(64, kernel_size=(3,3), activation='relu', padding='same'))
+		model.add(MaxPooling2D(pool_size=(2,2)))
+		model.add(Conv2D(128, kernel_size=(3,3), activation='relu', padding='same'))
+		model.add(Conv2D(128, kernel_size=(3,3), activation='relu', padding='same'))
+		model.add(MaxPooling2D(pool_size=(2,2)))
+		# model.add(Dropout(0.25))
+		
+		model.add(Flatten())
+		
+		# Three fully connected layers (including the output layer)
+		# model.add(Dense(128, activation='relu'))
+		# model.add(Dense(256, activation='relu'))
+		# model.add(Dropout(0.25))
+		model.add(Dense(10, activation='softmax'))    # 10 output classes, as probabilities
+	elif False:
+		# Model based on the paper, https://arxiv.org/pdf/1412.6806.pdf
+		
+		model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
+		model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same'))
+		model.add(MaxPooling2D(pool_size=(2,2), strides=2))
+		model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
+		model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
+		model.add(MaxPooling2D(pool_size=(2,2), strides=2))
+		model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
+		model.add(Conv2D(192, kernel_size=(1,1), activation='relu', padding='same'))
+		model.add(Conv2D(10, kernel_size=(1,1), activation='relu', padding='same'))
+		# model.add(MaxPooling2D(pool_size=(2,2), strides=2))
+		# model.add(Dropout(0.25))
+		
+		model.add(Flatten())
+		# model.add(GlobalAveragePooling2D())
+		
+		# Three fully connected layers (including the output layer)
+		# model.add(Dense(128, activation='relu'))
+		# model.add(Dense(256, activation='relu'))
+		# model.add(Dropout(0.25))
+		model.add(Dense(10, activation='softmax'))    # 10 output classes, as probabilities
 	
-	model.add(Flatten())
-	
-	# Three fully connected layers (including the output layer)
-	# model.add(Dense(128, activation='relu'))
-	# model.add(Dense(256, activation='relu'))
-	# model.add(Dropout(0.25))
-	model.add(Dense(10, activation='softmax'))    # 10 output classes, as probabilities
+	else:
+		# Convolution layers with max pooling
+		model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
+		# model.add(MaxPooling2D(pool_size=(2,2), strides=2))
+		# model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same'))
+		# model.add(MaxPooling2D(pool_size=(2,2), strides=2))
+		model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
+		# model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
+		# model.add(MaxPooling2D(pool_size=(2,2), strides=2))
+		# model.add(Dropout(0.25))
+		
+		model.add(Flatten())
+		
+		# Three fully connected layers (including the output layer)
+		# model.add(Dense(128, activation='relu'))
+		# model.add(Dense(256, activation='relu'))
+		# model.add(Dropout(0.25))
+		model.add(Dense(10, activation='softmax'))    # 10 output classes, as probabilities
 	
 	model.summary()
 	
