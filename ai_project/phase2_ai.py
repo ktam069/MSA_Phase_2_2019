@@ -11,8 +11,8 @@ import seaborn as sns
 from keras.models import Sequential, load_model
 from keras.layers import Input, Dense, Conv2D, MaxPooling2D, Flatten, Dropout
 from keras.layers import BatchNormalization, Activation, GlobalAveragePooling2D
-# from keras.layers import Input, BatchNormalization, Activation
-# from keras.callbacks import ModelCheckpoint
+from keras.layers import Input, BatchNormalization, Activation
+from keras.callbacks import ModelCheckpoint
 from sklearn.metrics import confusion_matrix
 
 import os
@@ -24,12 +24,16 @@ from datetime import datetime
 # Used (the latest) peviously saved model
 USE_LOADED_MODEL = False
 
+# Load weights from the latest saved checkpoint (has lower priority than USE_LOADED_MODEL)
+USE_CHECKPOINT = False
+
 # Filepaths to the locations for input and saved data
 CIFAR_10_dir = "./cifar-10-batches-py/"
 CIFAR_10_path = CIFAR_10_dir + "data_batch_1"
 dataset_save_dir = "./cifar-10-npy/"
 dataset_save_path = dataset_save_dir + "cifar-10-batch-1.npy"
 model_save_dir = "./saved_models/"
+checkpoint_save_dir = "./saved_checkpoints/"
 
 # ====================
 
@@ -42,6 +46,8 @@ def setup():
 		os.mkdir(dataset_save_dir)
 	if not os.path.exists(model_save_dir):
 		os.mkdir(model_save_dir)
+	if not os.path.exists(checkpoint_save_dir):
+		os.mkdir(checkpoint_save_dir)
 
 def unpickle(file):		# Function taken from: https://www.cs.toronto.edu/~kriz/cifar.html
 	import pickle
@@ -118,7 +124,7 @@ def create_compiled_model():
 
 	model = Sequential()
 	
-	if False:
+	if True:
 		# Convolution layers with max pooling
 		
 		model.add(Conv2D(16, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
@@ -140,7 +146,7 @@ def create_compiled_model():
 		# model.add(Dense(256, activation='relu'))
 		# model.add(Dropout(0.25))
 		model.add(Dense(10, activation='softmax'))    # 10 output classes, as probabilities
-	elif False:
+	elif True:
 		# Convolution layers with max pooling
 		
 		model.add(Conv2D(16, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
@@ -237,6 +243,25 @@ def load_newest_model():
 	
 	return model
 
+def load_newest_checkpoint():
+	'''Load latest saved checkpoint'''
+	
+	# Get the newest available model
+	all_paths = glob.glob(checkpoint_save_dir+'*')
+	newest_path = max(all_paths, key=os.path.getctime)
+	
+	model = create_compiled_model()
+	
+	# Load weights from the last saved checkpoint
+	model.load_weights(newest_path)
+
+	print("\n" + "="*60 + "\n")
+	print("Using model loaded from:", newest_model_path)
+	print("\nLoaded model summary:")
+	print(model.summary())
+	
+	return model
+
 def save_trained_model(model, filename="saved_model"):
 	'''Save an existing (trained) model'''
 	
@@ -262,12 +287,19 @@ def display_confusion_matrix(y_test, y_pred):
 def run_CNN(x_train, y_train, x_test, y_test):
 	if USE_LOADED_MODEL:
 		model = load_newest_model()
+	elif USE_CHECKPOINT:
+		model = load_newest_checkpoint()
 	else:
 		# Convolution NN model
 		model = create_compiled_model()
-
-		# TODO: hyperparameter tuning (simply using the validation result currently)
-		training = model.fit(x_train, y_train, batch_size=1000, epochs=20, validation_split=0.2)
+		
+		# Create checkpoints whenever validation accuracy has increased
+		filepath = checkpoint_save_dir + "cnn-{epoch:02d}-{val_acc:.2f}.hdf5"
+		checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='auto')
+		callback_list = [checkpoint]
+		
+		# Hyperparameter tuning done simply by using the validation result
+		training = model.fit(x_train, y_train, batch_size=1000, epochs=15, callbacks=callback_list, validation_split=0.2)
 		
 		# Save the model so it can be loaded if desired (rather than having to re-train)
 		save_trained_model(model)
