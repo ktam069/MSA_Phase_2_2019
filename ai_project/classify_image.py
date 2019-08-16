@@ -3,8 +3,9 @@ from phase2_ai import *
 import requests
 from PIL import Image
 from io import BytesIO
+import matplotlib.image as mpimg
 
-
+# Set image url here (for classifying)
 url = "http://www.cs.toronto.edu/~kriz/cifar-10-sample/automobile5.png"
 
 def run_classifier(x_test, saved_model_name=None):
@@ -52,6 +53,7 @@ def run_classifier(x_test, saved_model_name=None):
 
 response = requests.get(url)
 img = Image.open(BytesIO(response.content))
+img.thumbnail((32, 32), Image.ANTIALIAS)
 
 data = np.array(img)
 data = data.reshape(1, 32, 32, 3)
@@ -61,5 +63,10 @@ output = run_classifier(data)[0]
 label_names = unpickle(CIFAR_10_dir + "batches.meta")[b"label_names"]
 label_names = [n.decode('utf-8') for n in label_names]
 
-print("class", output)
-print(label_names[output])
+print("\n" + "="*60 + "\n")
+print("Prediction on image:\n\t", url, "\n")
+print("\t", label_names[output], "(class "+str(output)+")")
+print()
+
+imgplot = plt.imshow(img)
+plt.show()
