@@ -171,10 +171,10 @@ def create_compiled_model():
 		# Model based on the paper, https://arxiv.org/pdf/1412.6806.pdf
 		
 		model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
-		# model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same'))
+		model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same'))
 		model.add(MaxPooling2D(pool_size=(2,2), strides=2))
-		model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
 		# model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
+		model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
 		model.add(MaxPooling2D(pool_size=(2,2), strides=2))
 		# model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
 		# model.add(Conv2D(192, kernel_size=(1,1), activation='relu', padding='same'))
@@ -186,7 +186,7 @@ def create_compiled_model():
 		# model.add(GlobalAveragePooling2D())
 		
 		# Three fully connected layers (including the output layer)
-		model.add(Dense(64, activation='relu'))
+		model.add(Dense(32, activation='relu'))
 		# model.add(Dense(128, activation='relu'))
 		# model.add(Dense(256, activation='relu'))
 		# model.add(Dropout(0.25))
@@ -301,7 +301,7 @@ def run_CNN(x_train, y_train, x_test, y_test):
 		callback_list = [checkpoint]
 		
 		# Hyperparameter tuning done simply by using the validation result
-		training = model.fit(x_train, y_train, batch_size=1000, epochs=15, callbacks=callback_list, validation_split=0.2)
+		training = model.fit(x_train, y_train, batch_size=200, epochs=15, callbacks=callback_list, validation_split=0.2)
 		
 		# Save the model so it can be loaded if desired (rather than having to re-train)
 		save_trained_model(model)

@@ -46,6 +46,8 @@ To run the program, navigate to the *ai_project* folder and run the following fr
 python phase2_ai.py
 ```
 
+### Settings:
+
 The following settings can be modified for different behaviours:
 
 ```
@@ -56,7 +58,7 @@ USE_LOADED_MODEL = False
 USE_CHECKPOINT = False
 ```
 
-By default, both flags are set to false. This will make the program train a model from scratch.
+By default, both flags are set to false. This will make the program train the model from scratch.
 
 Enabling *USE_LOADED_MODEL* will load the latest model that was saved in the *saved_models* folder. (This model is saved after training all epochs.)
 
@@ -66,15 +68,13 @@ Enabling *USE_CHECKPOINT* will load the model with the weights from the latest c
 
 ### Transfer Learning with ResNet50:
 
-If you wish to run the program, navigate to the *ai_project* folder and run the following from command line:
+To run the program, navigate to the *ai_project* folder and run the following from command line:
 
 ```
 python transfer_learning.py
 ```
 
 This was attempted but isn't currently working. The accuracy isn't better than random guessing so far.
-
-(The code is in the transfer_learning branch.)
 
 ### Deployed Model:
 
