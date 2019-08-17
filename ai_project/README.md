@@ -81,3 +81,15 @@ Deploying Python code to Azure Functions, as outlined in the following tutorial:
 Currently incomplete - code can be found in the *deployment* branch.
 
 (To be extended)
+
+### Local Demo:
+
+This is a small script to allow the user to easily classify an image from the image URL. This was primarily created for demo purposes in the absence of a functional web app.
+
+Checkout the *local-demo* branch, and run the following command from the *ai_project* folder:
+
+```
+python classify_image.py
+```
+
+This will load the saved model, and prompt the user to enter an image URL for classification (Ctrl+C to terminate). Alternatively, modify the settings for the URL in the script itself.
