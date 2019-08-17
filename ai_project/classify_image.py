@@ -4,46 +4,17 @@ import requests
 from PIL import Image
 from io import BytesIO
 import matplotlib.image as mpimg
+import sys
 
+ASK_FOR_INPUT = True
+saved_model_name = "saved_model_17_08_154019_4conv_2nn_paper.h5"
 
 '''Set image url here (for classifying)'''
 # url = "http://www.cs.toronto.edu/~kriz/cifar-10-sample/automobile5.png"
 url = "https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500"
 
 
-def run_classifier(x_test, saved_model_name=None):
-	USE_LOADED_MODEL = True
-
-	if saved_model_name is not None:
-		model = load_specific_model(saved_model_name)
-		
-		# Ignore invalid saved model name
-		if model is None:
-			print("Failed to load model, continuing with alternative models...\n")
-			# run_CNN(x_train, y_train, x_test, y_test)
-	elif USE_LOADED_MODEL:
-		model = load_newest_model()
-	elif USE_CHECKPOINT:
-		model = load_newest_checkpoint()
-	else:
-		# Convolution NN model
-		model = create_compiled_model()
-		
-		# Create checkpoints whenever validation accuracy has increased
-		t = datetime.now().strftime("%d_%m_%H%M%S")
-		filepath = checkpoint_save_dir + "cnn-%s-{epoch:02d}-{val_acc:.2f}.hdf5" %t
-		checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='auto')
-		callback_list = [checkpoint]
-		
-		# Hyperparameter tuning done simply by using the validation result
-		training = model.fit(x_train, y_train, batch_size=200, epochs=15, callbacks=callback_list, validation_split=0.2)
-		
-		# Save the model so it can be loaded if desired (rather than having to re-train)
-		save_trained_model(model)
-		
-		# Plot curves of training loss and validation loss
-		plot_training_result(training)
-	
+def run_classifier(model, x_test):
 	# Make predictions on test set
 	print("\nPredicting on test set...")
 	y_pred = model.predict(x_test, verbose=1)
@@ -53,24 +24,47 @@ def run_classifier(x_test, saved_model_name=None):
 
 	return y_pred
 
+def classify_img(model, url=url):
+	response = requests.get(url)
+	img_original = Image.open(BytesIO(response.content))
+	img = img_original.resize((32, 32), Image.ANTIALIAS)
 
-response = requests.get(url)
-img_original = Image.open(BytesIO(response.content))
-img = img_original.resize((32, 32), Image.ANTIALIAS)
+	data = np.array(img)
+	data = data.reshape(1, 32, 32, 3)
 
-data = np.array(img)
-data = data.reshape(1, 32, 32, 3)
+	output = run_classifier(model, data)[0]
 
-output = run_classifier(data)[0]
+	label_names = unpickle(CIFAR_10_dir + "batches.meta")[b"label_names"]
+	label_names = [n.decode('utf-8') for n in label_names]
 
-label_names = unpickle(CIFAR_10_dir + "batches.meta")[b"label_names"]
-label_names = [n.decode('utf-8') for n in label_names]
+	print("\n" + "="*60 + "\n")
+	print("Prediction on image:\n\t", url, "\n")
+	print("\t", label_names[output], "(class "+str(output)+")")
+	print()
 
-print("\n" + "="*60 + "\n")
-print("Prediction on image:\n\t", url, "\n")
-print("\t", label_names[output], "(class "+str(output)+")")
-print()
+	imgplot = plt.imshow(img_original)
+	plt.title("%s"%label_names[output])
+	plt.axis("off")
+	plt.show()
 
-imgplot = plt.imshow(img_original)
-plt.title("%s"%label_names[output])
-plt.show()
+	
+model = load_specific_model(saved_model_name)
+
+# Ignore invalid saved model name
+if model is None:
+	print("Failed to load model,", saved_model_name, "\n")
+	sys.exit(0)
+
+if ASK_FOR_INPUT:
+	while True:
+		try:
+			url = input("\nPlease input URL to image: ")
+			
+			classify_img(model, url)
+		except KeyboardInterrupt:
+			break
+		except Exception as e:
+			print("Unable to classify image from", url)
+			print(e)
+else:
+	classify_img(model)
