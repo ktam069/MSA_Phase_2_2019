@@ -151,7 +151,7 @@ def create_compiled_model():
 		model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
 		model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same'))
 		model.add(MaxPooling2D(pool_size=(2,2), strides=2))
-		# model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
+		model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
 		model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
 		model.add(MaxPooling2D(pool_size=(2,2), strides=2))
 		# model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
@@ -164,7 +164,7 @@ def create_compiled_model():
 		# model.add(GlobalAveragePooling2D())
 		
 		# Three fully connected layers (including the output layer)
-		model.add(Dense(32, activation='relu'))
+		model.add(Dense(64, activation='relu'))
 		# model.add(Dense(128, activation='relu'))
 		# model.add(Dense(256, activation='relu'))
 		# model.add(Dropout(0.25))
@@ -233,7 +233,7 @@ def load_newest_checkpoint():
 	model.load_weights(newest_path)
 
 	print("\n" + "="*60 + "\n")
-	print("Using model loaded from:", newest_path)
+	print("Using checkpoint loaded from:", newest_path)
 	print("\nLoaded model summary:")
 	print(model.summary())
 	
@@ -247,6 +247,8 @@ def save_trained_model(model, filename="saved_model"):
 	t = datetime.now().strftime("%d_%m_%H%M%S")
 	model_save_path = model_save_dir + (filename + "_%s.h5"%t)
 	model.save(model_save_path)
+	
+	print("\nModel saved to:", model_save_path)
 	
 def eval_model(model, x_test, y_test):
 	print("\nEvaluating on test data...")
