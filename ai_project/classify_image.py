@@ -7,7 +7,7 @@ import matplotlib.image as mpimg
 import sys
 
 ASK_FOR_INPUT = True
-saved_model_name = "saved_model_4conv_2nn_paper.h5"
+saved_model_name = "saved_model_final_with_dropout.h5"
 
 '''Set image url here (for classifying)'''
 # url = "http://www.cs.toronto.edu/~kriz/cifar-10-sample/automobile5.png"
