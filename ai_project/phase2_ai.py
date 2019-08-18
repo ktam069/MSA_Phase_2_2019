@@ -151,22 +151,17 @@ def create_compiled_model():
 		model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same', input_shape=(32, 32, 3)))
 		model.add(Conv2D(96, kernel_size=(3,3), activation='relu', padding='same'))
 		model.add(MaxPooling2D(pool_size=(2,2), strides=2))
-		# model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
+		model.add(Dropout(0.25))
+		model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
 		model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
 		model.add(MaxPooling2D(pool_size=(2,2), strides=2))
-		# model.add(Conv2D(192, kernel_size=(3,3), activation='relu', padding='same'))
-		# model.add(Conv2D(192, kernel_size=(1,1), activation='relu', padding='same'))
-		# model.add(Conv2D(10, kernel_size=(1,1), activation='relu', padding='same'))
-		# model.add(MaxPooling2D(pool_size=(2,2), strides=2))
-		# model.add(Dropout(0.25))
+		model.add(Dropout(0.5))
 		
 		model.add(Flatten())
-		# model.add(GlobalAveragePooling2D())
 		
 		# Three fully connected layers (including the output layer)
-		model.add(Dense(32, activation='relu'))
-		# model.add(Dense(128, activation='relu'))
-		# model.add(Dense(256, activation='relu'))
+		# model.add(Dense(64, activation='relu'))
+		model.add(Dense(128, activation='relu'))
 		# model.add(Dropout(0.25))
 		model.add(Dense(10, activation='softmax'))    # 10 output classes, as probabilities
 	
@@ -233,7 +228,7 @@ def load_newest_checkpoint():
 	model.load_weights(newest_path)
 
 	print("\n" + "="*60 + "\n")
-	print("Using model loaded from:", newest_path)
+	print("Using checkpoint loaded from:", newest_path)
 	print("\nLoaded model summary:")
 	print(model.summary())
 	
@@ -247,6 +242,8 @@ def save_trained_model(model, filename="saved_model"):
 	t = datetime.now().strftime("%d_%m_%H%M%S")
 	model_save_path = model_save_dir + (filename + "_%s.h5"%t)
 	model.save(model_save_path)
+	
+	print("\nModel saved to:", model_save_path)
 	
 def eval_model(model, x_test, y_test):
 	print("\nEvaluating on test data...")
@@ -286,7 +283,7 @@ def run_CNN(x_train, y_train, x_test, y_test, saved_model_name=None):
 		callback_list = [checkpoint]
 		
 		# Hyperparameter tuning done simply by using the validation result
-		training = model.fit(x_train, y_train, batch_size=200, epochs=15, callbacks=callback_list, validation_split=0.2)
+		training = model.fit(x_train, y_train, batch_size=64, epochs=50, callbacks=callback_list, validation_split=0.2)
 		
 		# Save the model so it can be loaded if desired (rather than having to re-train)
 		save_trained_model(model)
