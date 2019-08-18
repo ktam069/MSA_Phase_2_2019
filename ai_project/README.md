@@ -86,7 +86,7 @@ Currently incomplete - code can be found in the *deployment* branch.
 
 This is a small script to allow the user to easily classify an image from the image URL. This was primarily created for demo purposes in the absence of a functional web app.
 
-Checkout the *local-demo* branch, and run the following command from the *ai_project* folder:
+Run the following command from the *ai_project* folder:
 
 ```
 python classify_image.py
