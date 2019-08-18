@@ -21,7 +21,8 @@ def create_modified_resnet():
 	# latest_layer = GlobalAveragePooling2D()(latest_layer)
 	# latest_layer = Flatten()(latest_layer)
 	
-	# latest_layer = Dense(64, activation='relu')(latest_layer)
+	latest_layer = Dense(64, activation='relu')(latest_layer)
+	latest_layer = Dropout(0.25)(latest_layer)
 	
 	# Add output (dense layer)
 	output_layer = Dense(10, activation='softmax')(latest_layer)    # 10 output classes - for CIFAR-10
