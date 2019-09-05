@@ -72,15 +72,13 @@ To run the program, navigate to the *ai_project* folder and run the following fr
 python transfer_learning.py
 ```
 
-This was attempted but isn't currently working. The accuracy isn't better than random guessing so far.
+The accuracy is below 50% so far. Further work would be required.
 
 ### Deployed Model:
 
 Deploying Python code to Azure Functions, as outlined in the following tutorial: https://docs.microsoft.com/en-us/azure/azure-functions/tutorial-vs-code-serverless-python
 
-Currently incomplete - code can be found in the *deployment* branch.
-
-(To be extended)
+Currently incomplete - the code can be found in the *deployment* branch.
 
 ### Local Demo:
 
